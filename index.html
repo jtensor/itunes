@@ -17,6 +17,14 @@
             <div class="form-group">
               <input type="text" class="form-control" ng-model="artist" placeholder="Artist Name" >
               <button class="btn btn-primary" ng-click="getSongData()"> Submit </button>
+                  <select class="input-medium" ng-model="typeFilter" ng-change="filterResults()">
+                      <option value="all">All</option>
+                      <option value="song">Song</option>
+                      <option value="Movie">Movie</option>
+                      <option value="tv-episode">TV Episode</option>
+                      <option value="podcast">Podcast</option>
+                      <option value="music-video">Music Video</option>
+                  </select>
             </div>
           </form>
         </div>

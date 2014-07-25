@@ -4,16 +4,36 @@ app.controller('mainCtrl', function($scope, itunesService){
   //This is setting up the default behavior of our ng-grid. The important thing to note is
   //the 'data' property. The value is 'songData'. That means ng-grid is looking for songData on $scope and is putting whatever songData is into the grid.
   //this means when you make your iTunes request, you'll need to get back the information, parse it accordingly, then set it to songData on the scope -> $scope.songData = ...
+  $scope.typeFilter="all";
+
+ $scope.getSongData=function(){
+ // debugger
+itunesService.getSongs($scope.artist).then(function(results){
+  $scope.unfilteredSongData = massageData(results)
+  $scope.filterResults()
+  console.log(results)
+})
+
+  // itunesService.getSongs($scope.artist).then(function(results){
+  //   $scope.songData = massageData(results)
+  //   console.log(results)
+  // })
+  
+ }
+
+
   $scope.gridOptions = { 
       data: 'songData',
       height: '110px',
       sortInfo: {fields: ['Song', 'Artist', 'Collection', 'Type'], directions: ['asc']},
       columnDefs: [
         {field: 'Play', displayName: 'Play', width: '40px', cellTemplate: '<div class="ngCellText" ng-class="col.colIndex()"><a href="{{row.getProperty(col.field)}}"><img src="http://www.icty.org/x/image/Miscellaneous/play_icon30x30.png"></a></div>'},
+        {field: 'Song', displayName: 'Song'},
         {field: 'Artist', displayName: 'Artist'},
         {field: 'Collection', displayName: 'Collection'},
         {field: 'AlbumArt', displayName: 'Album Art', width: '110px', cellTemplate: '<div class="ngCellText" ng-class="col.colIndex()"><img src="{{row.getProperty(col.field)}}"></div>'},
         {field: 'Type', displayName: 'Type'},
+        {field: 'SinglePrice', displayName: 'Single Price'},
         {field: 'CollectionPrice', displayName: 'Collection Price'},
       ]
   };
@@ -47,6 +67,30 @@ app.controller('mainCtrl', function($scope, itunesService){
       Play: "http://a423.phobos.apple.com/us/r1000/013/Music4/v4/4a/ab/7c/4aab7ce2-9a72-aa07-ac6b-2011b86b0042/mzaf_6553745548541009508.plus.aac.p.m4a"
       Type: "song"
   */
+
+function massageData(results){
+    console.log(results.map(function(song){
+      return song.kind;
+    }))
+
+  return results.map(function(song){
+    return{
+      'Artist':song.artistName, 
+      'Collection': song.collectionName, 
+      'Type':song.kind,
+      'Play': song.previewURL, 
+      'AlbumArt': song.artworkUrl100, 
+      'CollectionPrice': song.collectionPrice,
+      'SinglePrice': song.trackPrice,
+      'Song': song.trackName
+    }
+  })
+}
+  $scope.filterResults=function(){
+    $scope.songData = $scope.unfilteredSongData.filter(function(song){
+      return (song.Type === $scope.typeFilter) ||  ($scope.typeFilter === "all")
+    })
+  }
   //the iTunes API is going to give you a lot more details than ng-grid wants. Create a new array and then loop through the iTunes data pushing into your new array objects that look like the above data.
 
     //Code here
